@@ -17,6 +17,7 @@
     
 		// for CodeBlock dialog select
 		var codeLanguages = exports.codeLanguages = {
+			math          : ["TeX 科学公式语言", "math"],
 			asp           : ["ASP", "vbscript"],
 			actionscript  : ["ActionScript(3.0)/Flash/Flex", "clike"],
 			bash          : ["Bash/Bat", "shell"],

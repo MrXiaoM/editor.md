@@ -13,6 +13,11 @@
                 <h1>Tex 科学公式语言 (TeX/LaTeX)</h1>
 		<p>Based on KaTeX.js：<a href="http://khan.github.io/KaTeX/" target="_blank">http://khan.github.io/KaTeX/</a></p>
                 <p>注：使用 CloudFlare 的 CDN，有时加载速度会比较慢</p>
+		<div>
+		    <input type="text" id="convert-input">
+		    <input type="button" id="convert-btn" value="转换">
+		    <input type="text" id="convert-output" readonly="">
+		</div>
             </header>
             <div id="test-editormd">                
                 <textarea style="display:none;">
@@ -31,9 +36,10 @@ $$ \text{Max } T = \frac{3}{2} M $$
 在 `$` 开头加空格可防止挤在同一行
 
  $$ \quad B \geq \frac{M}{50} $$
- $$ \quad S_1 + S_2 + S_3 + S_4 + S_5 + S_6 \leq 112 $$
- $$ \quad M \geq 1000 $$
 
+ $$ \quad S_1 + S_2 + S_3 + S_4 + S_5 + S_6 \leq 112 $$
+
+ $$ \quad M \geq 1000 $$
 </textarea>
             </div>
         </div>
@@ -47,6 +53,50 @@ $$ \text{Max } T = \frac{3}{2} M $$
                     height: 640,
                     path : '../lib/',
                     tex  : true
+                });
+	        function convertToLaTeX(str) {
+                    str = str.replace('*', ' \\times ');
+                    var result = [];
+                    var temp = [];
+                    var indent = 0;
+                    var div = [];
+                    for (i in str) {
+                        let c = str[i];
+                        var flag = true;
+                        if (c == '/') {
+                            flag = false;
+                            div = temp;
+                            temp = [];
+                        }
+                        if (c == '(') {
+                            if (indent == 0) flag = false;
+                            indent++;
+                        }
+                        if (c == ')') {
+                            indent--;
+                            if (indent <= 0) {
+                                flag = false;
+                                indent = 0;
+                                result.push('(' + convertToLaTeX(temp.join('')) + ')');
+                            }
+                        }
+                        if (flag) temp.push(c);
+                        if (c == '=') {
+                            result.push(temp.join(''));
+                            temp = [];
+                            indent = 0;
+                        }
+                    }
+                    if (div.length > 0) {
+                        result.push("\\frac{" + div.join('') + '}{' + temp.join('') + '}')
+                    } else {
+                        result.push(temp.join(''));
+                    }
+                    return result.join('');
+                }
+                $("#convert-btn").on("click", function() {
+                    var str = $("#convert-input")[0].value;
+                    $("#convert-output")[0].value = convertToLaTeX(str);
                 });
             });
         </script>
